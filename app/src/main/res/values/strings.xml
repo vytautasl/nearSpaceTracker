@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">NearSpace</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="nearspace">You are about to be NearSpace!</string>
+    <string name="action_extract_db">Iškelti db</string>
+
+</resources>
