@@ -64,6 +64,13 @@ public class MainActivity extends ActionBarActivity {
     private Handler uIHandler;
     private Handler cameraHandler;
 
+    boolean isGPSEnabled = false;
+    boolean isNetworkEnabled = false;
+    boolean canGetLocation = false;
+    Location location; // location
+    double latitude; // latitude
+    double longitude; // longitude
+
     private PictureDao pictureDao = PictureDaoImpl.getDao();
     private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
 
@@ -98,6 +105,66 @@ public class MainActivity extends ActionBarActivity {
     private static boolean activityVisible = false;
 
 
+    public Location getLocation() {
+        try {
+            locationManager = (LocationManager) mContext
+                    .getSystemService(LOCATION_SERVICE);
+
+            // getting GPS status
+            isGPSEnabled = locationManager
+                    .isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+            // getting network status
+            isNetworkEnabled = locationManager
+                    .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+            if (!isGPSEnabled && !isNetworkEnabled) {
+                // no network provider is enabled
+            } else {
+                this.canGetLocation = true;
+                // First get location from Network Provider
+                if (isNetworkEnabled) {
+                    locationManager.requestLocationUpdates(
+                            LocationManager.NETWORK_PROVIDER,
+                            MIN_TIME_BW_UPDATES,
+                            MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                    Log.d("Network", "Network");
+                    if (locationManager != null) {
+                        location = locationManager
+                                .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                        if (location != null) {
+                            latitude = location.getLatitude();
+                            longitude = location.getLongitude();
+                        }
+                    }
+                }
+                // if GPS Enabled get lat/long using GPS Services
+                if (isGPSEnabled) {
+                    if (location == null) {
+                        locationManager.requestLocationUpdates(
+                                LocationManager.GPS_PROVIDER,
+                                MIN_TIME_BW_UPDATES,
+                                MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                        Log.d("GPS Enabled", "GPS Enabled");
+                        if (locationManager != null) {
+                            location = locationManager
+                                    .getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                            if (location != null) {
+                                latitude = location.getLatitude();
+                                longitude = location.getLongitude();
+                            }
+                        }
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return location;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,6 +181,7 @@ public class MainActivity extends ActionBarActivity {
         //mSurfaceView = (SurfaceView) findViewById(R.id.surface);
         //Log.d(TAG, "Picture taken = " + (new SpaceSnap(this)).takePicture());
 
+/*
         mLocationManager = (LocationManager)
                 getSystemService(Context.LOCATION_SERVICE);
 
@@ -123,8 +191,9 @@ public class MainActivity extends ActionBarActivity {
         mLocationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER, 30 * MILLISECONDS_IN_SECOND, 0.5f, locationListener);
 
-
-        Location mLocation = LocationService.getLastBestLocation(this);
+*/
+        //Location mLocation = LocationService.getLastBestLocation(this);
+        Location mLocation = getLocation();
         if (mLocation != null) {
             String longitude = "Longitude: " + mLocation.getLongitude();
             Log.v(TAG, longitude);
