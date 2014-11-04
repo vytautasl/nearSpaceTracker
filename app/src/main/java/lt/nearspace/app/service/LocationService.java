@@ -113,7 +113,7 @@ public class LocationService extends Service {
             try {
                 boolean sent = false;
                 if (ConnectivityChangeReceiver.isConnected(getApplicationContext()))                {
-                    sent = RESTClient.postCoordinates(latBigDec.longValue(), lonBigDec.longValue(), altBigDec.longValue(), mLocation.getTime());
+                    sent = RESTClient.postCoordinates(latBigDec.longValue(), lonBigDec.longValue(), altBigDec.longValue(), mLocation.getTime(), RESTClient.TOKEN);
                     sendAllUnsynced();
                 }
 
@@ -142,7 +142,7 @@ public class LocationService extends Service {
             boolean sent;
             if (tracklogList != null && tracklogList.size() > 0) {
                 for (Tracklog tracklog : tracklogList) {
-                    sent = RESTClient.postCoordinates(tracklog.getLat(), tracklog.getLng(), tracklog.getAlt(), tracklog.getSentTime());
+                    sent = RESTClient.postCoordinates(tracklog.getLat(), tracklog.getLng(), tracklog.getAlt(), tracklog.getSentTime(), RESTClient.TOKEN);
                     if (sent) {
                         tracklog.setSynced(true);
                         tracklogDao.saveTracklog(tracklog);

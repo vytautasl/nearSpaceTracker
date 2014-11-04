@@ -62,7 +62,7 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
             Tracklog tracklog = params[0];
 
             try {
-                boolean sent = RESTClient.postCoordinates(tracklog.getLat(), tracklog.getLng(), tracklog.getAlt(), tracklog.getSentTime());
+                boolean sent = RESTClient.postCoordinates(tracklog.getLat(), tracklog.getLng(), tracklog.getAlt(), tracklog.getSentTime(), RESTClient.TOKEN);
 
                 if (sent) {
                     tracklog.setSynced(true);

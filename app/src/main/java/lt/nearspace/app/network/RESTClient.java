@@ -19,7 +19,8 @@ import java.io.IOException;
 public class RESTClient {
     public static final String SERVER = "http://www.racelive.eu:8080/nearSpaceLive/";
     public static final String GET_TRACKLOGS = "api/track/get/limit/%d";
-    public static final String POST_COORDINATES = "api/track/add/lat/%d/lng/%d/alt/%d/sent/%d";
+    public static final String POST_COORDINATES = "api/track/add/lat/%d/lng/%d/alt/%d/sent/%d/token/%d";
+    public static final long TOKEN=3;
     private static final String TAG = RESTClient.class.getSimpleName();
 
 
@@ -62,8 +63,8 @@ public class RESTClient {
         conn.disconnect();
     }*/
 
-    public static boolean postCoordinates(long lat, long lon, long alt, long sent) {
-        String URL = SERVER + String.format(POST_COORDINATES, lat, lon, alt, sent);
+    public static boolean postCoordinates(long lat, long lon, long alt, long sent, long token) {
+        String URL = SERVER + String.format(POST_COORDINATES, lat, lon, alt, sent, token);
         Log.d(TAG, "postCoordinates " + lat + lon + alt + sent + " " + URL);
         HttpClient httpclient = new DefaultHttpClient();
         HttpPost httppost = new HttpPost(URL);
