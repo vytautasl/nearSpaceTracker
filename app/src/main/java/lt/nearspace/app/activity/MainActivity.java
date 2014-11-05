@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.hardware.Camera;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -41,7 +40,6 @@ import lt.nearspace.app.service.LocationService;
 import lt.nearspace.app.util.CameraPreview;
 import lt.nearspace.app.util.DbExtractor;
 import lt.nearspace.app.util.EmailSender;
-import lt.nearspace.app.util.GPSListener;
 import lt.nearspace.app.util.LocListener;
 
 
@@ -55,6 +53,8 @@ public class MainActivity extends ActionBarActivity {
     private static final long INTERVAL_PICTURE_TAKEN = 120000;
     private static final int THIRTY_SECONDS = 30;
     private static final int MILLISECONDS_IN_SECOND = 1000;
+    private static final long MIN_TIME_BW_UPDATES = 30000;
+    private static final float MIN_DISTANCE_CHANGE_FOR_UPDATES = 5;
     private TextView output;
     private TextView gps;
     private TextView location;
@@ -67,7 +67,7 @@ public class MainActivity extends ActionBarActivity {
     boolean isGPSEnabled = false;
     boolean isNetworkEnabled = false;
     boolean canGetLocation = false;
-    Location location; // location
+    Location newLocation; // location
     double latitude; // latitude
     double longitude; // longitude
 
@@ -107,15 +107,15 @@ public class MainActivity extends ActionBarActivity {
 
     public Location getLocation() {
         try {
-            locationManager = (LocationManager) mContext
+            mLocationManager = (LocationManager) this
                     .getSystemService(LOCATION_SERVICE);
 
             // getting GPS status
-            isGPSEnabled = locationManager
+            isGPSEnabled = mLocationManager
                     .isProviderEnabled(LocationManager.GPS_PROVIDER);
 
             // getting network status
-            isNetworkEnabled = locationManager
+            isNetworkEnabled = mLocationManager
                     .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
             if (!isGPSEnabled && !isNetworkEnabled) {
@@ -124,34 +124,34 @@ public class MainActivity extends ActionBarActivity {
                 this.canGetLocation = true;
                 // First get location from Network Provider
                 if (isNetworkEnabled) {
-                    locationManager.requestLocationUpdates(
+                    mLocationManager.requestLocationUpdates(
                             LocationManager.NETWORK_PROVIDER,
                             MIN_TIME_BW_UPDATES,
-                            MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                            MIN_DISTANCE_CHANGE_FOR_UPDATES, new LocListener(location));
                     Log.d("Network", "Network");
-                    if (locationManager != null) {
-                        location = locationManager
+                    if (mLocationManager != null) {
+                        newLocation = mLocationManager
                                 .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                        if (location != null) {
-                            latitude = location.getLatitude();
-                            longitude = location.getLongitude();
+                        if (newLocation != null) {
+                            latitude = newLocation.getLatitude();
+                            longitude = newLocation.getLongitude();
                         }
                     }
                 }
                 // if GPS Enabled get lat/long using GPS Services
                 if (isGPSEnabled) {
-                    if (location == null) {
-                        locationManager.requestLocationUpdates(
+                    if (newLocation == null) {
+                        mLocationManager.requestLocationUpdates(
                                 LocationManager.GPS_PROVIDER,
                                 MIN_TIME_BW_UPDATES,
-                                MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                                MIN_DISTANCE_CHANGE_FOR_UPDATES, new LocListener(location));
                         Log.d("GPS Enabled", "GPS Enabled");
-                        if (locationManager != null) {
-                            location = locationManager
+                        if (mLocationManager != null) {
+                            newLocation = mLocationManager
                                     .getLastKnownLocation(LocationManager.GPS_PROVIDER);
                             if (location != null) {
-                                latitude = location.getLatitude();
-                                longitude = location.getLongitude();
+                                latitude = newLocation.getLatitude();
+                                longitude = newLocation.getLongitude();
                             }
                         }
                     }
@@ -162,7 +162,7 @@ public class MainActivity extends ActionBarActivity {
             e.printStackTrace();
         }
 
-        return location;
+        return newLocation;
     }
 
     @Override
